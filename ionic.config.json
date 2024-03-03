@@ -1,0 +1,7 @@
+{
+  "name": "Restaurant review app",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}
