@@ -1,0 +1,31 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/restaurants"></ion-back-button>
+    </ion-buttons>
+
+    <ion-title>Restaurant details</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+
+  <ion-card >
+    <img [src]="restaurant.imageUrl"/>
+    <ion-card-header>
+      <ion-card-subtitle>{{restaurant.address}}, {{restaurant.city}}</ion-card-subtitle>
+      <div style="display: flex; justify-content: space-between;">
+        <ion-card-title>{{restaurant.name}}</ion-card-title>
+        <ion-card-title>{{restaurant.grade}}/5 <ion-icon name="star-outline"></ion-icon>
+        </ion-card-title>
+      </div>
+      
+      
+    </ion-card-header>
+  
+    <ion-card-content>
+      {{restaurant.text}}
+    </ion-card-content>
+  </ion-card>
+  
+</ion-content>

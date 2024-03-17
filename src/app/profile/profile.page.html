@@ -1,0 +1,26 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/restaurants"></ion-back-button>
+    </ion-buttons>
+
+    <ion-title>My profile</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-card >
+    <img [src]="'https://i.pinimg.com/564x/83/bc/8b/83bc8b88cf6bc4b4e04d153a418cde62.jpg'" />
+    <ion-card-header style="text-align: center;">
+      <ion-card-title>{{email}}</ion-card-title>
+    </ion-card-header>
+      
+    <ion-item (click)="onLogOut()" lines="none">
+      <ion-label class="ion-text-center" style="font-size: 24px; padding: 15px;" ion-text-xx-large><ion-icon name="log-out" slot="start"></ion-icon>  Log out</ion-label>
+    </ion-item>
+        
+   
+  
+    
+  </ion-card>
+</ion-content>
