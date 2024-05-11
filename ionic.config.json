@@ -1,9 +1,7 @@
 {
   "name": "Restaurant review app",
   "integrations": {
-    "capacitor": {
-      "enabled": false
-    },
+    "capacitor": {},
     "cordova": {}
   },
   "type": "angular"

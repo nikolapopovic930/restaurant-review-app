@@ -1,10 +1,13 @@
-<ion-item>
-  <ion-item lines="none" class="custom-ion-item" [routerLink]="restaurant.id">
+<ion-item [routerLink]="restaurant.id">
+
   <ion-avatar slot="start">
     <ion-img [src]="restaurant.imageUrl"></ion-img>
   </ion-avatar>
-  <ion-label>{{restaurant.name}}</ion-label>
-  </ion-item>
-  <ion-icon name="create-outline" slot="end" (click)="onEditRestaurant()"></ion-icon>
-  <ion-icon name="trash-outline" slot="end" (click)="onDeleteRestaurant()"></ion-icon>
+  <ion-label>
+  <h2>{{restaurant.name}}</h2>
+  <h4>{{restaurant.grade}} <ion-icon name="star-outline"></ion-icon></h4>
+  </ion-label>
+
+  <ion-icon name="create-outline" slot="end" (click)="onEditRestaurant($event)"></ion-icon>
+  <ion-icon name="trash-outline" slot="end" (click)="onDeleteRestaurant($event)"></ion-icon>
 </ion-item>

@@ -1,8 +1,12 @@
 import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { ModalController } from '@ionic/angular';
-import { Geolocation } from '@capacitor/geolocation';
-//import { NativeGeocoder, NativeGeocoderResult, NativeGeocoderOptions } from '@awesome-cordova-plugins/native-geocoder/ngx';
+import { Geolocation } from '@ionic-native/geolocation/ngx';
+import axios from 'axios';
+import { Capacitor } from '@capacitor/core';
+import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
+import { Storage, getDownloadURL, ref, uploadBytes } from '@angular/fire/storage';
+
 
 @Component({
   selector: 'app-restaurant-modal',
@@ -18,29 +22,35 @@ export class RestaurantModalComponent  implements OnInit {
   @Input() city: string;
   @Input() grade: number;
   @Input() text: string;
-
-  //
-  // options: NativeGeocoderOptions = {
-  //   useLocale: true,
-  //   maxResults: 5
-  // }
-  // geoAddress: any;
-  //
-
-  //constructor(private modalCtrl: ModalController, private nativegeocoder: NativeGeocoder) { }
+  @Input() imageUrl: string;
   
-  constructor(private modalCtrl: ModalController) { }
+  image:any;
+  imageFormat: any;
+  
+  constructor(private modalCtrl: ModalController, private geoLocation: Geolocation, private storage: Storage) { }
 
-  ngOnInit() {null
+  ngOnInit() {
+  null
   }
 
   onCancel(){
     this.modalCtrl.dismiss(null, 'cancel');
   }
 
-  onSubmit(){
+async onSubmit(){
     if(!this.form.valid) {
       return;
+    }
+
+    if(this.image != null){
+    const blob = this.dataURLtoBlob(this.image);
+    const url = await this.uploadImage(blob, this.imageFormat);
+    this.imageUrl = url;
+    console.log(url);
+    }
+    
+    if(this.imageUrl == null) {
+      this.imageUrl = "https://firebasestorage.googleapis.com/v0/b/restaurant-review-app-47636.appspot.com/o/test%2F1715425759378.png?alt=media&token=84cb5630-06e1-4926-b2c1-e37631006066"
     }
 
     this.modalCtrl.dismiss({
@@ -50,91 +60,109 @@ export class RestaurantModalComponent  implements OnInit {
           address: this.form.value['address'], 
           city: this.form.value['city'],
           grade: +this.form.value['grade'], 
-          text: this.form.value['text']
+          text: this.form.value['text'],
+          imageUrl: this.imageUrl
         }
       }, 'confirm');
 
+      
   }
 
   isValidGrade(val: number): boolean { return (val>5 || val<1) && val != null; }
 
 
-
-////
-// async fetchLocation() {
-//     const location = await Geolocation.getCurrentPosition()
-//     console.log('location = ', location);
-// }
+///////////
 
 
-// async fetchLocation() {
-//     const location = await Geolocation.getCurrentPosition()
-//       console.log('location = ', location);
-
-//       this.nativegeocoder.reverseGeocode(location.coords.latitude, location.coords.longitude, this.options).then((
-//         result: NativeGeocoderResult[]) => {
-
-//           console.log('result =', result);
-//           console.log('result 0 =', result[0]);
-
-//           this.geoAddress = this.generateAdress(result[0]);
-
-//           console.log('location address = ', this.geoAddress)
-//         })
-// }
-    
-  
-// generateAdress(addressObj){
-//   let obj = [];
-//   let uniqueNames = [];
-//   let address = "";
-//   for (let key in addressObj) {
-    
-//     if(key!='areasOfIntrest'){
-//       obj.push(addressObj[key]);
-//     }
-//   }
-
-//   var i=0;
-//   obj.forEach(value=> {
-
-//     if(uniqueNames.indexOf(obj[i]) === -1){
-//       uniqueNames.push(obj[i]);
-//     }
-//     i++;
-//   })
-
-//   uniqueNames.reverse();
-//   for (let val in uniqueNames) {
-//     if(uniqueNames[val].length)
-//     address += uniqueNames[val]+', '
-//   }
-
-//   return address.slice(0, -2);
-// }
-
-
-currentLocation: string;
-async fetchLocation() {
+async fillUserAddressWithUserCurrentPosition() {
   try {
-    const coordinates = await Geolocation.getCurrentPosition({ enableHighAccuracy: true });
-    const { latitude, longitude } = coordinates.coords;
-    this.currentLocation = await this.getAddressFromCoordinates(latitude, longitude);
-    console.log(this.currentLocation);
+    const resp = await this.geoLocation.getCurrentPosition();
+    const latitude = resp.coords.latitude;
+    const longitude = resp.coords.longitude;
+
+    const apiKey = 'AIzaSyDX9dHcyILb2zEVAI8l_ziOkSWTXB1AoO0';
+    const url = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&language=en&key=${apiKey}`;
+
+    const response = await axios.get(url);
+    const results = response.data.results;
+
+    if (results && results.length > 0) {
+      let address = '';
+      let city = '';
+      let streetNumber = '';
+
+      for (const component of results[0].address_components) {
+        if (component.types.includes('route')) {
+          address = component.long_name;
+        } else if (component.types.includes('locality')) {
+          city = component.long_name;
+        } else if (component.types.includes('street_number')) {
+          streetNumber = component.long_name;
+        }
+      }
+
+      const fullAddress = streetNumber ? `${address} ${streetNumber}` : address;
+
+      console.log('User Address:', fullAddress);
+      console.log('City:', city);
+
+     
+      this.address = fullAddress;
+      this.city = city;
+    } else {
+      console.error('No address found');
+     
+    }
   } catch (error) {
-    console.error('Error getting location or address:', error);
+    console.error('Error getting user location:', error);
+    
   }
 }
 
-async getAddressFromCoordinates(latitude: number, longitude: number): Promise<string> {
+/////////////
+
+
+async takePicture() {
   try {
-    const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`);
-    const data = await response.json();
-    return data.display_name;
-  } catch (error) {
-    console.error('Error fetching address:', error);
-    return 'Unknown';
+    if(Capacitor.getPlatform() != 'web') await Camera.requestPermissions();
+    const image = await Camera.getPhoto({
+      quality: 90,
+      source: CameraSource.Prompt,
+      width: 600,
+      resultType: CameraResultType.DataUrl
+    });
+    console.log('image: ', image);
+    this.image = image.dataUrl;
+    this.imageFormat = image.format;
+    return this.image;
+    
+  } catch(e) {
+    console.log(e);
   }
 }
 
+dataURLtoBlob(dataurl) {
+  var arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
+      bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
+  while(n--){
+      u8arr[n] = bstr.charCodeAt(n);
+  }
+  return new Blob([u8arr], {type:mime});
 }
+
+async uploadImage(blob: any, imageFormat: any) {
+  const currentDate = Date.now();
+  const filePath = `test/${currentDate}.${imageFormat}`;
+  const fileRef = ref(this.storage, filePath);
+  const task = await uploadBytes(fileRef, blob);
+  console.log('task:', task);
+  const url = getDownloadURL(fileRef);
+  return url;
+} catch(e) {
+  throw(e);
+}
+
+
+
+}
+

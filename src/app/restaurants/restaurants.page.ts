@@ -13,10 +13,6 @@ import { AuthService } from '../auth/auth.service';
 })
 export class RestaurantsPage implements OnInit, OnDestroy {
 
-//  restaurants: RestaurantModel[] = [
-//    {id: 'r1', ime: 'breza', adresa: 'dunavski kej 11', ocena: '4', imageUrl:'https://getsling.com/wp-content/uploads/2019/11/Types-Of-Restaurants_A.png', komentar:'lep' },
-//    {id: 'r2', ime: 'lipa', adresa: 'cara dusana 5', ocena: '1', imageUrl:'https://getsling.com/wp-content/uploads/2019/11/Types-Of-Restaurants_A.png', komentar:'dobar' }
-//  ]
 
 restaurants!: RestaurantModel[];
 private restaurantSub!: Subscription;
@@ -24,11 +20,10 @@ userid:string;
 
   constructor(private restaurantsService: RestaurantsService, private modalCtrl: ModalController, private authService: AuthService) {
 
-    //this.restaurants = this.restaurantsService.restaurants;
 
    }
 
-// pitati
+
 
   ngOnInit() {
      this.restaurantSub = this.restaurantsService.restaurants.subscribe((restaurants) => {  
@@ -46,7 +41,6 @@ userid:string;
 
   ionViewWillEnter(){
     this.restaurantsService.getRestaurantsByUserId(this.userid).subscribe((restaurants) => {  
-    //  this.restaurants = restaurants;
     });
   }
 
@@ -68,9 +62,9 @@ userid:string;
           resultData.data.restaurantData.address, 
           resultData.data.restaurantData.city,
           +resultData.data.restaurantData.grade, 
-          resultData.data.restaurantData.text
+          resultData.data.restaurantData.text,
+          resultData.data.restaurantData.imageUrl
         ).subscribe((restaurants) => {
-        //  this.restaurants = restaurants;
         
         });
       }

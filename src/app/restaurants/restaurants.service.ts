@@ -30,7 +30,7 @@ export class RestaurantsService {
     return this._restaurants.asObservable();
   }
 
-  addRestaurant(name: string, address: string, city: string, grade: number, text: string) {
+  addRestaurant(name: string, address: string, city: string, grade: number, text: string, imageUrl: string) {
     let generatedId: string;
     let newRestaurant: RestaurantModel;
     let fetchedUserId: string;
@@ -49,7 +49,7 @@ export class RestaurantsService {
           address,
           city,
           grade,
-          'https://getsling.com/wp-content/uploads/2019/11/Types-Of-Restaurants_A.png',
+          imageUrl,
           text,
           fetchedUserId
         );
@@ -164,10 +164,11 @@ export class RestaurantsService {
           address,
           city,
           grade,
-          'https://getsling.com/wp-content/uploads/2019/11/Types-Of-Restaurants_A.png',
+          imageUrl,
           text,
           restaurants[updatedRestaurantIndex].userId
         );
+        updatedRestaurants.sort((a, b) => b.grade - a.grade);
         this._restaurants.next(updatedRestaurants);
       })
     );

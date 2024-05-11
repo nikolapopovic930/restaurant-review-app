@@ -19,7 +19,11 @@ export class RestaurantElementComponent  implements OnInit {
 
   
 
-  onDeleteRestaurant() {
+  onDeleteRestaurant(e: Event) {
+
+    e.stopPropagation();
+    e.preventDefault();
+
     this.alertCtrl.create({
       header: "Deleting restaurant",
       message: "Are you sure you want to delete restaurant?",
@@ -49,7 +53,11 @@ export class RestaurantElementComponent  implements OnInit {
   }
 
 
-  async onEditRestaurant() {
+  async onEditRestaurant(e: Event) {
+
+    e.stopPropagation();
+    e.preventDefault();
+
     const modal = await this.modalCtrl.create({
       component: RestaurantModalComponent,
       componentProps: {
@@ -60,6 +68,7 @@ export class RestaurantElementComponent  implements OnInit {
         city: this.restaurant.city, 
         grade: this.restaurant.grade, 
         text: this.restaurant.text, 
+        imageUrl: this.restaurant.imageUrl,
         mode: 'edit'}
       
     });
@@ -67,6 +76,8 @@ export class RestaurantElementComponent  implements OnInit {
     modal.present();
 
     const {data, role} = await modal.onWillDismiss();
+
+    console.log(data)
 
     if (role === 'confirm') {
       this.restaurantsService
@@ -76,7 +87,7 @@ export class RestaurantElementComponent  implements OnInit {
           data.restaurantData.address,
           data.restaurantData.city,
           data.restaurantData.grade,
-          this.restaurant.imageUrl,
+          data.restaurantData.imageUrl,
           data.restaurantData.text,
           this.restaurant.userId
           
@@ -87,6 +98,7 @@ export class RestaurantElementComponent  implements OnInit {
           this.restaurant.city = data.restaurantData.city;
           this.restaurant.grade = +data.restaurantData.grade;
           this.restaurant.text = data.restaurantData.text;
+          this.restaurant.imageUrl = data.restaurantData.imageUrl;
         });
     }
   }
